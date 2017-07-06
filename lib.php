@@ -6,9 +6,9 @@
  * Time: 9:02 AM
  */
 
-function get_all_subjects($courseid) {
+function get_all_subjects($courseid, $fields = '*') {
     global $DB;
-    return $DB->get_records('subject_subjects', array('course_id' => $courseid));
+    return $DB->get_records('subject_subjects', array('course_id' => $courseid), null, $fields);
 }
 
 function get_mark_by_user_and_subject($userid, $subjectid) {
@@ -31,6 +31,11 @@ function get_id_by_user_and_subject($userid, $subjectid){
     global $DB;
     $mark_id = $DB->get_record('subject_marks', array('user_id' => $userid, 'sub_id' => $subjectid));
     return $mark_id ? $mark_id->id : false;
+}
+
+function get_userid(){
+    global $DB;
+    return $DB->get_records_sql('SELECT DISTINCT `user_id` FROM {subject_marks}');
 }
 
 function insert_mark($subject, $userid, $data){
@@ -57,4 +62,44 @@ function update_data($subject, $userid, $data){
     $obj->modified_by = $userid;
     $DB->update_record('subject_marks', $obj);
 }
+
+function get_all_marks($userid) {
+    global $DB;
+    return $DB->get_records('subject_mark', array('user_id' => $userid));
+}
+
+function get_user_info_by_id($userid){
+    global $DB;
+    return $DB->get_record('user', array('id' => $userid));
+}
+
+function create_overview_table($subjects, $userids){
+    $table_html  = html_writer::tag('h2', 'Overview', array('style' => 'text-align: center'));
+    $table_html .= html_writer::start_tag('table', array('class' => 'table table-hover table-bordered'));
+    $table_html .= html_writer::start_tag('thead');
+    $table_html .= html_writer::tag('th', 'Student');
+    foreach ($subjects as $subject){
+        $table_html .= html_writer::tag('th', ucfirst($subject->name));
+    }
+    $table_html .= html_writer::end_tag('thead');
+
+    $table_html .= html_writer::start_tag('tbody');
+    foreach ($userids as $userid) {
+        $id = (int)$userid->user_id;
+        $user = get_user_info_by_id($id);
+        $fullname = fullname($user);
+        $table_html .= html_writer::start_tag('tr');
+        $table_html .= html_writer::tag('td', $fullname);
+        foreach ($subjects as $subject){
+            $mark = get_mark_by_user_and_subject($id, $subject->id);
+            $table_html.= html_writer::tag('td', $mark);
+        }
+        $table_html .= html_writer::end_tag('tr');
+    }
+    $table_html .= html_writer::end_tag('tbody');
+    $table_html .= html_writer::end_tag('table');
+    return $table_html;
+}
+
+
 

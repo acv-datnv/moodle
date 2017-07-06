@@ -20,7 +20,7 @@ class block_subject extends block_base {
 
         $url_view_setting = new moodle_url('/blocks/subject/setting.php', array('blockid' => $this->instance->id, 'courseid' => $COURSE->id));
         $url_view_list = new moodle_url('/blocks/subject/list.php', array('blockid' => $this->instance->id, 'courseid' => $COURSE->id));
-        $url_view_report = new moodle_url('/blocks/subject/report.php', array('blockid' => $this->instance->id, 'courseid' => $COURSE->id));
+        $url_view_report = new moodle_url('/blocks/subject/test_custom.php', array('blockid' => $this->instance->id, 'courseid' => $COURSE->id));
 
         $this->content->text = 'my subject rating block';
 
