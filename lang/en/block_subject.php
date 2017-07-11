@@ -10,3 +10,10 @@ $string['html:myaddinstance'] = 'Add a new Subject block to Dashboard';
 $string['pluginname'] = 'Subject';
 $string['list'] = 'List';
 $string['error_validate'] = 'Phai nhap so tu 0 den 10';
+$string['invalidcourse'] = 'invalidcourse';
+$string['setting'] = 'Setting';
+$string['change'] = 'change';
+$string['addsubject'] = 'Add';
+$string['save'] = 'Save';
+$string['success'] = 'Success';
+

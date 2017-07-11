@@ -1,33 +1,38 @@
 <?php
 
+defined('MOODLE_INTERNAL') || die();
+
 class block_subject extends block_base {
     public function init() {
         $this->title = get_string('subject', 'block_subject');
     }
 
-    function get_content() {
-        global $COURSE;
-
-        if ($this->content !== NULL) {
-            return $this->content;
-        }
-
-        if (empty($this->instance)) {
-            return null;
-        }
-
+    function get_content()
+    {
+        global $CFG, $PAGE;
         $this->content = new stdClass();
+        $courseid = $PAGE->course->id;
+        $context = context_course::instance($courseid);
 
-        $url_view_setting = new moodle_url('/blocks/subject/setting.php', array('blockid' => $this->instance->id, 'courseid' => $COURSE->id));
-        $url_view_list = new moodle_url('/blocks/subject/list.php', array('blockid' => $this->instance->id, 'courseid' => $COURSE->id));
-        $url_view_report = new moodle_url('/blocks/subject/test_custom.php', array('blockid' => $this->instance->id, 'courseid' => $COURSE->id));
+        if (has_capability('block/subject:manager', $context)) {
+            $html = '<ul>';
+            $html .= sprintf('<li><a href="%s/blocks/subject/setting.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_setting', 'block_subject'));
+            $html .= sprintf('<li><a href="%s/blocks/subject/test_custom.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_report', 'block_subject'));
 
-        $this->content->text = 'my subject rating block';
+            $html .= '</ul>';
+        } else if (has_capability('moodle/grade:export', $context)) {
+            $html = '<ul>';
+            $html .= sprintf('<li><a href="%s/blocks/subject/list.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_list', 'block_subject'));
+            $html .= '</ul>';
+        } else {
+            $html = '<ul>';
+            $html .= sprintf('<li><a href="%s/blocks/subject/setting.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_setting', 'block_subject'));
+            $html .= sprintf('<li><a href="%s/blocks/subject/test_custom.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_report', 'block_subject'));
+            $html .= sprintf('<li><a href="%s/blocks/subject/list.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_list', 'block_subject'));
+            $html .= '</ul>';
+        }
 
-        $this->content->footer = html_writer::link($url_view_setting, get_string('view_setting', 'block_subject'));
-        $this->content->footer .= '<br />' . html_writer::link($url_view_list, get_string('view_list', 'block_subject'));
-        $this->content->footer .= '<br />' . html_writer::link($url_view_report, get_string('view_report', 'block_subject'));
-
+        $this->content->text = $html;
         return $this->content;
     }
 

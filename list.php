@@ -2,11 +2,11 @@
 <?php
 
 require_once('../../config.php');
-require_once('list_form.php');
-require_once('lib.php');
+require_once(__DIR__ . 'list_form.php');
+require_once(__DIR__ . 'lib.php');
 
 //check for all required variables
-$courseid = required_param('courseid', PARAM_INT);
+$courseid = required_param('course', PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
 $viewpage = optional_param('viewpage', false, PARAM_BOOL);
 
@@ -16,18 +16,16 @@ if (!$course = $DB->get_record('course', array('id' => $courseid))) {
 
 require_login($course);
 
-$PAGE->set_url('/blocks/subject/list.php', array('id' => $courseid));
+$PAGE->set_url('/blocks/subject/list.php?course='.$courseid);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_heading(get_string('list', 'block_subject'));
 
-$redirect = new moodle_url('/blocks/subject/list.php', array('courseid' => $courseid));
-//print_object($redirect);
-$subjects = get_subjects_with_mark($courseid, $USER->id);
+$subjects = block_subject_get_subjects_with_mark($courseid, $USER->id);
 //echo '<pre>';
 //print_object($subjects);
 //echo '</pre>';die;
 
-$list = new list_form($redirect->out(false), array('subjects' => $subjects));
+$list = new list_form($CFG->wwwroot.'/blocks/subject/list.php?course='.$courseid, array('subjects' => $subjects));
 
 if ($list->is_cancelled()) {
     $courseurl = new moodle_url('/course/view.php', array('id' => $courseid));
@@ -36,12 +34,13 @@ if ($list->is_cancelled()) {
     if (!empty($subjects) && is_array($subjects)) {
         foreach ($subjects as $subject) {
             if ($subject->mark == null) {
-                insert_mark($subject, $USER->id, $data);
+                block_subject_insert_mark_to_database($subject, $USER->id, $data);
                 continue;
             }
-            update_data($subject, $USER->id, $data);
+            block_subject_update_mark_to_database($subject, $USER->id, $data);
         }
     }
+    redirect(new moodle_url('/blocks/subject/list.php', array('course' => $courseid)), get_string('success', 'block_subject'));
 
 } else {
     // form didn't validate or this is the first display
