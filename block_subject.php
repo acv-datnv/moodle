@@ -17,7 +17,7 @@ class block_subject extends block_base {
         if (has_capability('block/subject:manager', $context)) {
             $html = '<ul>';
             $html .= sprintf('<li><a href="%s/blocks/subject/setting.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_setting', 'block_subject'));
-            $html .= sprintf('<li><a href="%s/blocks/subject/test_custom.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_report', 'block_subject'));
+            $html .= sprintf('<li><a href="%s/blocks/subject/report.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_report', 'block_subject'));
 
             $html .= '</ul>';
         } else if (has_capability('moodle/grade:export', $context)) {
@@ -27,7 +27,7 @@ class block_subject extends block_base {
         } else {
             $html = '<ul>';
             $html .= sprintf('<li><a href="%s/blocks/subject/setting.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_setting', 'block_subject'));
-            $html .= sprintf('<li><a href="%s/blocks/subject/test_custom.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_report', 'block_subject'));
+            $html .= sprintf('<li><a href="%s/blocks/subject/report.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_report', 'block_subject'));
             $html .= sprintf('<li><a href="%s/blocks/subject/list.php?course=%d">%s</a></li>', $CFG->wwwroot, $courseid, get_string('view_list', 'block_subject'));
             $html .= '</ul>';
         }

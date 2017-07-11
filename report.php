@@ -1,9 +1,9 @@
 <?php
 
-require_once('../../config.php');
-require ($CFG->libdir/tablelib.php);
-require (__DIR__ . 'lib.php');
-require (__DIR__ . 'test_table.php');
+require(__DIR__. '/../../config.php');
+require_once($CFG->libdir . '/tablelib.php');
+require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/report_table.php');
 
 $context = context_system::instance();
 $PAGE->set_context($context);
@@ -25,7 +25,7 @@ foreach ($userids as $userid){
     $fullname = fullname($user);
     $out = html_writer::tag('h4', $fullname);
     echo $out;
-    $table = new test_table('uniqueid');
+    $table = new report_table('uniqueid');
     // Work out the sql for the table.
     $fields = 'm.id, m.user_id, m.mark, s.name';
     $from = '{subject_marks} as m JOIN {subject_subjects} as s ON m.sub_id = s.id';

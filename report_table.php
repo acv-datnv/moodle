@@ -6,7 +6,7 @@
  * Time: 4:20 PM
  */
 
-class test_table extends table_sql {
+class report_table extends table_sql {
     function __construct($uniqueid)
     {
         parent::__construct($uniqueid);

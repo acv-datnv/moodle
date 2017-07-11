@@ -1,8 +1,8 @@
 <?php
 
-require_once('../../config.php');
-require_once('lib.php');
-require_once('setting_form.php');
+require(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/setting_form.php');
 
 $courseid = required_param('course', PARAM_INT);
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {

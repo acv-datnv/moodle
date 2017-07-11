@@ -1,9 +1,8 @@
 
 <?php
-
-require_once('../../config.php');
-require_once(__DIR__ . 'list_form.php');
-require_once(__DIR__ . 'lib.php');
+require(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/list_form.php');
+require_once(__DIR__ . '/lib.php');
 
 //check for all required variables
 $courseid = required_param('course', PARAM_INT);
