@@ -1,6 +1,5 @@
 <?php
 require_once("{$CFG->libdir}/formslib.php");
-require_once 'HTML/QuickForm.php';
 
 class list_form extends moodleform {
     //Add elements to form
