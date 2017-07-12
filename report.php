@@ -22,13 +22,13 @@ $PAGE->set_heading(get_string('view_report', 'block_subject'));
 $PAGE->set_pagelayout('incourse');
 
 
-$userids = block_subject_get_all_userids_marked();
+$userids = block_subject_get_all_user_ids_marked();
 $subjects = block_subject_get_all_subjects($courseid);
 
 echo $OUTPUT->header();
 
-if (!empty($userids) && is_array($userids)){
-	foreach ($userids as $userid){
+if (!empty($userids) && is_array($userids)) {
+	foreach ($userids as $userid) {
 		$sql = create_sql_marks_table($userid, $courseid);
 		echo $sql['title'];
 		$table = new report_table('report_table');
@@ -38,7 +38,7 @@ if (!empty($userids) && is_array($userids)){
 	}
 }
 
-if (!empty($subjects)) {
+if (!empty($userids) && is_array($userids) && !empty($subjects) && is_array($subjects)) {
 	echo $overview = block_subject_create_marks_overview_table($subjects, $userids);
 }
 
