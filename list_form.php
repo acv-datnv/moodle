@@ -5,7 +5,7 @@ class list_form extends moodleform {
     //Add elements to form
     public function definition()
     {
-        $mform = $this->_form; // Don't forget the underscore!
+        $mform = $this->_form;
         $data = $this->_customdata;
         if (isset($data['subjects']) && !empty($data['subjects']) && is_array($data['subjects'])) {
             foreach ($data['subjects'] as $subject) {

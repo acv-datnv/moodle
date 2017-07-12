@@ -16,4 +16,8 @@ $string['change'] = 'change';
 $string['addsubject'] = 'Add';
 $string['save'] = 'Save';
 $string['success'] = 'Success';
+$string['banned'] = 'You are banned!';
+$string['subject:addinstance'] = 'Addinstance';
+$string['subject:manager'] = 'subject:manager';
+$string['subject:student'] = 'subject:student';
 

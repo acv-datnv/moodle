@@ -2,13 +2,15 @@
 
 function block_subject_get_all_subjects($courseid, $fields = '*') {
     global $DB;
-    return $DB->get_records('subject_subjects', array('course_id' => $courseid), null, $fields);
+
+    return $DB->get_records('subject_subjects', array('course_id' => $courseid, 'del_flag' => 0), null, $fields);
 }
 
 function block_subject_get_mark_by_user_and_subject($userid, $subjectid) {
     global $DB;
-    $subjectmark = $DB->get_record('subject_marks', array('user_id' => $userid,'sub_id' => $subjectid));
-    return $subjectmark ? $subjectmark->mark : 0;
+
+    $subjectmark = $DB->get_record('subject_marks', array('user_id' => $userid,'sub_id' => $subjectid, 'del_flag' => 0));
+    return ($subjectmark != null) ? $subjectmark->mark : 0;
 }
 
 function block_subject_get_subjects_with_mark($courseid, $userid) {
@@ -21,19 +23,22 @@ function block_subject_get_subjects_with_mark($courseid, $userid) {
     return $subjects;
 }
 
-function block_subject_get_recordid_by_user_and_subject($userid, $subjectid){
+function block_subject_get_mark_id_by_user_and_subject($userid, $subjectid){
     global $DB;
-    $mark_id = $DB->get_record('subject_marks', array('user_id' => $userid, 'sub_id' => $subjectid));
-    return $mark_id ? $mark_id->id : false;
+
+    $mark_id = $DB->get_record('subject_marks', array('user_id' => $userid, 'sub_id' => $subjectid, 'del_flag' => 0));
+    return ($mark_id != null) ? $mark_id->id : 0;
 }
 
-function block_subject_get_all_userids(){
+function block_subject_get_all_userids_marked () {
     global $DB;
-    return $DB->get_records_sql('SELECT DISTINCT `user_id` FROM {subject_marks}');
+
+    return $DB->get_fieldset_select('subject_marks', 'DISTINCT user_id', 'del_flag = ?', array(0));
 }
 
-function block_subject_insert_mark_to_database($subject, $userid, $data){
+function block_subject_insert_mark_($subject, $userid, $data){
     global $DB;
+
     $name = $subject->name;
     $obj = new stdClass();
     $obj->sub_id = $subject->id;
@@ -41,30 +46,40 @@ function block_subject_insert_mark_to_database($subject, $userid, $data){
     $obj->mark = $data->$name;
     $obj->created_at = time();
     $obj->created_by = $userid;
-    $obj->del_flag = 1;
-    $DB->insert_record('subject_marks', $obj);
+    $insert = $DB->insert_record('subject_marks', $obj);
+    if ($insert) {
+        return true;
+    }
+    return false;
 }
 
-function block_subject_update_mark_to_database($subject, $userid, $data){
+function block_subject_update_mark($subject, $userid, $data){
     global $DB;
-    $mark_id = block_subject_get_recordid_by_user_and_subject($userid, $subject->id);
+
+    $mark_id = block_subject_get_mark_id_by_user_and_subject($userid, $subject->id);
     $name = $subject->name;
     $obj = new stdClass();
     $obj->id = $mark_id;
     $obj->mark = $data->$name;
     $obj->updated_at = time();
     $obj->modified_by = $userid;
-    $DB->update_record('subject_marks', $obj);
+    $update = $DB->update_record('subject_marks', $obj);
+    if ($update) {
+        return true;
+    }
+    return false;
 }
 
 function block_subject_get_all_marks_by_userid($userid) {
     global $DB;
-    return $DB->get_records('subject_mark', array('user_id' => $userid));
+
+    return $DB->get_records('subject_mark', array('user_id' => $userid, 'del_flag' => 0));
 }
 
 function get_user_info_by_id($userid){
     global $DB;
-    return $DB->get_record('user', array('id' => $userid));
+
+    return $DB->get_record('user', array('id' => $userid, 'deleted' => 0));
 }
 
 function block_subject_create_marks_overview_table($subjects, $userids){
@@ -79,11 +94,10 @@ function block_subject_create_marks_overview_table($subjects, $userids){
 
     $table_html .= html_writer::start_tag('tbody');
     foreach ($userids as $userid) {
-        $id = (int)$userid->user_id;
+        $id = (int)$userid;
         $user = get_user_info_by_id($id);
-        $fullname = fullname($user);
         $table_html .= html_writer::start_tag('tr');
-        $table_html .= html_writer::tag('td', $fullname);
+        $table_html .= html_writer::tag('td', fullname($user));
         foreach ($subjects as $subject){
             $mark = block_subject_get_mark_by_user_and_subject($id, $subject->id);
             $table_html.= html_writer::tag('td', $mark);
@@ -95,36 +109,68 @@ function block_subject_create_marks_overview_table($subjects, $userids){
     return $table_html;
 }
 
-function block_subject_update_subject_name($id, $name){
-    global $DB, $USER;
+function block_subject_update_subject_name($id, $name, $userid){
+    global $DB;
 
     $obj = new stdClass();
     $obj->id = $id;
     $obj->name = $name;
     $obj->updated_at = time();
-    $obj->modified_by = $USER->id;
-    $DB->update_record('subject_subjects', $obj);
+    $obj->modified_by = $userid;
+    $update = $DB->update_record('subject_subjects', $obj);
+    if ($update) {
+        return true;
+    }
+    return false;
 }
 
 function block_subject_delete_subject($id){
     global $DB;
-    $DB->delete_records('subject_subjects',array('id' => $id));
-    $DB->delete_records('subject_marks',array('sub_id' => $id));
+
+    $delete_subject = $DB->delete_records('subject_subjects',array('id' => $id));
+    if ($delete_subject) {
+        return true;
+    }
+    return false;
 }
 
-function block_subject_insert_subject($courseid, $name){
-    global  $DB, $USER;
+function block_subject_delete_mark($id){
+    global $DB;
+
+    $delete_mark = $DB->delete_records('subject_marks',array('sub_id' => $id));
+    if ($delete_mark) {
+        return true;
+    }
+    return false;
+}
+
+function block_subject_insert_subject($courseid, $name, $userid){
+    global  $DB;
 
     $obj = new stdClass();
     $obj->course_id = $courseid;
     $obj->name = $name;
     $obj->created_at = time();
-    $obj->created_by = $USER->id;
-    $obj->del_flag = 1;
-    $DB->insert_record('subject_subjects', $obj);
+    $obj->created_by = $userid;
+    $insert = $DB->insert_record('subject_subjects', $obj);
+    if ($insert) {
+        return true;
+    }
+    return false;
 }
 
+function create_sql_marks_table ($userid, $courseid) {
+	$out = [];
+	$id = (int)$userid;
+	$user = get_user_info_by_id($id);
+	$title = html_writer::tag('h4', fullname($user));
+	$fields = 'm.id, m.user_id, m.mark, s.name';
+	$from = '{subject_marks} as m JOIN {subject_subjects} as s ON m.sub_id = s.id';
+	$wheres = "m.user_id = $id AND s.course_id = $courseid";
+	$out['title'] = $title;
+	$out['field'] = $fields;
+	$out['from'] = $from;
+	$out['where'] = $wheres;
 
-
-
-
+	return $out;
+}

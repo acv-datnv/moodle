@@ -23,19 +23,19 @@ class setting_form extends moodleform {
             foreach ($data['subjects'] as $subject){
                 $arrayform = array();
 
-                $arrayform[] = $mform->createElement('text', 'Subject['.$subject->id.'][name]', '', array('disabled' => 'disabled'));
-                $mform->setType('Subject['.$subject->id.'][name]', PARAM_TEXT);
-                $mform->setDefault('Subject['.$subject->id.'][name]', $subject->name);
+                $arrayform[] = $mform->createElement('text', 'Subject[' . $subject->id . '][name]', '', array('disabled' => 'disabled'));
+                $mform->setType('Subject[' . $subject->id . '][name]', PARAM_TEXT);
+                $mform->setDefault('Subject[' . $subject->id . '][name]', $subject->name);
                 $arrayform[] = $mform->createElement('button', 'change', get_string('change', 'block_subject'), array('class' => 'change-btn'));
-                $mform->addGroup($arrayform, 'slotsubjectarr', get_string('subject', 'block_subject'). ' ' . $num, '', false );
+                $mform->addGroup($arrayform, 'slotsubjectarr', get_string('subject', 'block_subject') . ' ' . $num, '', false );
                 $num++;
             }
         }
 
         for ($i = 1; $i <= $data['num']; $i++){
             $arrayform = array();
-            $arrayform[] = $mform->createElement('text', 'Subject[-'.$i.'][name]', '');
-            $mform->setType('Subject[-'.$i.'][name]', PARAM_TEXT);
+            $arrayform[] = $mform->createElement('text', 'Subject[-' . $i . '][name]', '');
+            $mform->setType('Subject[-' . $i . '][name]', PARAM_TEXT);
             $mform->addGroup($arrayform, 'slotsubjectarr', get_string('subject', 'block_subject') . ' ' . $num, '', false);
             $num++;
         }

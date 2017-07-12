@@ -5,6 +5,7 @@ require_once(__DIR__ . '/lib.php');
 require_once(__DIR__ . '/setting_form.php');
 
 $courseid = required_param('course', PARAM_INT);
+
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('invalidcourse', 'block_subject', $courseid);
 }
@@ -12,13 +13,13 @@ if (!$course = $DB->get_record('course', array('id' => $courseid))) {
 //check login and get context
 require_login($courseid, false);
 $context = context_course::instance($courseid);
-require_capability('block/subject:manager', $context); // phân quyền truy cập
+require_capability('block/subject:manager', $context);
 
 $num = optional_param('num', 0, PARAM_INT);
 $num++;
 
 $PAGE->set_course($course);
-$PAGE->set_url('/blocks/subject/setting.php?course='.$courseid);
+$PAGE->set_url('/blocks/subject/setting.php?course=' . $courseid);
 $PAGE->set_title(get_string('setting', 'block_subject'));
 $PAGE->set_heading(get_string('setting', 'block_subject'));
 $PAGE->set_pagelayout('incourse');
@@ -36,18 +37,20 @@ if ($setting->is_cancelled()) {
 } else if ($data = $setting->get_data()) {
     if (!empty($data->submitbutton)) {
         $subs = $data->Subject;
-//        var_dump($subs);
-        if (!empty($subs) && is_array($subs)){
-            foreach ($subs as $subid => $sub){
+        if (!empty($subs) && is_array($subs)) {
+            foreach ($subs as $subid => $sub) {
                 if ($subid > 0) {
-                    if ($sub['name'] != null){
-                        block_subject_update_subject_name($subid, $sub['name']);
+                    if (!empty($sub['name'])) {
+                        block_subject_update_subject_name($subid, $sub['name'], $USER->id);
                     } else {
                         block_subject_delete_subject($subid);
+                        block_subject_delete_mark($subid);
                     }
                 } else {
                     if (!empty($sub['name'])) {
-                        block_subject_insert_subject($courseid, $sub['name']);
+                        block_subject_insert_subject($courseid, $sub['name'], $USER->id);
+                    }else{
+                        continue;
                     }
                 }
             }
@@ -59,4 +62,3 @@ if ($setting->is_cancelled()) {
 echo $OUTPUT->header();
 $setting->display();
 echo $OUTPUT->footer();
-
